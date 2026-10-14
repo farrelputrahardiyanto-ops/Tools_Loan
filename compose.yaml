@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: .
+    user: "${UID}:${GID}"
+    volumes:
+      - ./:/var/www/html
+
+  nginx:
+    image: nginx:1.30.4
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+  
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: tools_loan
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    ports:
+      - "8100:8080"
+    depends_on:
+      - mysql
+
+  vite:
+    image: node:22
+    working_dir: /var/www/html
+    volumes:
+       - ./:/var/www/html
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "5173:5173"
+  
+
+volumes:
+  mysql_data: 
+                                                                                                        

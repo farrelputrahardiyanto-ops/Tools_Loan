@@ -18,6 +18,11 @@ class Tool extends Model
 
     public function category()
     {
-        $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class);
+    }
+
+    public function Loan()
+    {
+        return $this->hasMany(Loan::class);
     }
 }

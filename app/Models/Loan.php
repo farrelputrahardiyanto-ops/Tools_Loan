@@ -21,8 +21,13 @@ class Loan extends Model
         $this->belongsTo(User::class);
     }
 
-    public function operator()
+    public function approvedLoans()
     {
         $this->belongsTo(User::class);
+    }
+
+    public function loan_details()
+    {
+        return $this->hasMany(LoanDetail::class);
     }
 }

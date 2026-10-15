@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Loan_Detail extends Model
+class LoanDetail extends Model
 {
+
+    protected $table = "loan_details";
 
 
     protected $fillable = [

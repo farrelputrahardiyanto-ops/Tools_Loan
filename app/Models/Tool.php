@@ -15,4 +15,9 @@ class Tool extends Model
         'stock',
         'max_loan'
     ];
+
+    public function category()
+    {
+        $this->belongsTo(Category::class);
+    }
 }

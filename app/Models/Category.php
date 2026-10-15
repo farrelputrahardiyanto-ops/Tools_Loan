@@ -8,6 +8,11 @@ class Category extends Model
 {
     protected $fillable = [
         'name',
-        'dewscription'
+        'description'
     ];
+
+    public function tools()
+    {
+        $this->hasMany(Tool::class);
+    }
 }

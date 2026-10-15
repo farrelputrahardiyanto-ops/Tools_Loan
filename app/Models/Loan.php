@@ -15,4 +15,14 @@ class Loan extends Model
         'fine_amount',
         'status'
     ];
+
+    public function user()
+    {
+        $this->belongsTo(User::class);
+    }
+
+    public function operator()
+    {
+        $this->belongsTo(User::class);
+    }
 }

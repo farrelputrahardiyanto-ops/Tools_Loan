@@ -12,7 +12,11 @@
         @livewireStyles
     </head>
     <body class="bg-gray-100 dark:bg-gray-600">
+        <livewire:navbar />
         {{ $slot }}
+
+        <x-notifications />
+        <x-dialog />
 
         <wireui:scripts  /> 
         @livewireScripts

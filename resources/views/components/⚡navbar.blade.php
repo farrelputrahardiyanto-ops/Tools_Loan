@@ -29,6 +29,7 @@ new class extends Component
                     <a href="{{route('categories')}}">Categories</a>
                     <a href="">Loans</a>
                     <a href="">Loan Details</a>
+                    <a href="{{route('max_loan')}}">Max Loan</a>
                 </div>
             </div>
         </div>

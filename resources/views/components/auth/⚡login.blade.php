@@ -30,7 +30,13 @@ new class extends Component
         if(Auth::attempt($credentials, $rememberme)){
             session()->regenerate();
 
-            return redirect()->route('loan');
+            if(Auth::user()->role == 'user'){
+                return redirect()->route('loan');
+            } elseif(Auth::user()->role == 'operator'){
+                return redirect()->route('approval');
+            } elseif(Auth::user()->role == 'admin'){
+                return redirect()->route('users');
+            }
         }
 
 

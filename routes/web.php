@@ -3,14 +3,17 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 
-Route::livewire('/admin/users', 'admin.users')->name('users');
-Route::livewire('/admin/categories', 'admin.categories')->name('categories');
-Route::livewire('/admin/tools', 'admin.tools')->name('tools');
-Route::livewire('/admin/max-loan', 'admin.max_loan')->name('max_loan');
+Route::middleware(['auth', 'role:admin'])->group(function(){
+    Route::livewire('/admin/users', 'admin.users')->name('users');
+    Route::livewire('/admin/categories', 'admin.categories')->name('categories');
+    Route::livewire('/admin/tools', 'admin.tools')->name('tools');
+    Route::livewire('/admin/max-loan', 'admin.max_loan')->name('max_loan');
+    Route::livewire('/admin/loans', 'admin.loans')->name('loans');
+});
 
 
 Route::middleware(['auth', 'role:user'])->group(function(){
@@ -18,5 +21,8 @@ Route::middleware(['auth', 'role:user'])->group(function(){
 
 });
 
+Route::middleware(['auth', 'role:operator'])->group(function(){
+    Route::livewire('/operator/approval', 'operator.approval')->name('approval');
+});
 
 Route::livewire('/login', 'auth.login')->name('login');

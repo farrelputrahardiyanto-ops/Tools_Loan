@@ -1,10 +1,20 @@
 <?php
 
 use Livewire\Component;
+use WireUi\Traits\WireUiActions;
+use Illuminate\Support\Facades\Auth;
+
 
 new class extends Component
 {
-    //
+      use WireUiActions;
+    
+    public function logout()
+    {
+        Auth::logout();
+
+        return redirect()->route('login');
+    }
 };
 ?>
 
@@ -24,7 +34,18 @@ new class extends Component
 
             <div class="md:block" :class="{ 'hidden': !open}">
                 <div class="flex flex-col md:flex-row md:space-x-3">
-                    <a href="">Loans</a>
+                    <a href="{{route('loan')}}">Loans</a>
+                    <a href="">History</a>
+                    <x-button
+                        negative
+                        x-on:confirm="{
+                            icon: 'warning',
+                            title: 'Yakin?',
+                            description: 'Yakin ingin Logout?',
+                            method: 'logout'
+                        }"
+                        label="Logout"
+                    />
                 </div>
             </div>
         </div>

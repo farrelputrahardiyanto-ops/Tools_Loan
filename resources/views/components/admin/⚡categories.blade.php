@@ -133,7 +133,7 @@ x-on:created.window="$closeModal('category')">
         </div>
 
         <x-card>
-            <x-slot name="title"><h1>Users</h1></x-slot>
+            <x-slot name="title"><h1>Categories</h1></x-slot>
 
             <div class="overflow-x-auto w-full">
                 <table class="w-full text-left">

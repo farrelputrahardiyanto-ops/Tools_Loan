@@ -33,7 +33,7 @@ new class extends Component
         $this->due_date = Carbon::today()->addDays(7)->format('Y-m-d');
 
         $this->user_id = auth()->user()->id;
-        $this->user_loan = Loan::where('user_id', $this->user_id)->whereIn('status', ['pending', 'approved'])->first();
+        $this->user_loan = Loan::where('user_id', $this->user_id)->whereIn('status', ['pending', 'approved', 'borrowed', 'return_request'])->first();
     }
 
     public function addToCart($toolId)
@@ -107,28 +107,43 @@ new class extends Component
         DB::transaction(function() {
             $loan = Loan::create([
                 'user_id' => $this->user_id,
-                'loan_date' => $this->today,
-                'due_date' => $this->due_date,
                 'status' => 'pending'
             ]);
 
-        $details = collect($this->cart)->map(function($item){
-            return [
-                'tool_id' => $item['id'],
-                'qty' => $item['qty']
-            ];
-        })->toArray();
+            foreach ($this->cart as $item) {
+            $tool = Tool::whereKey($item['id'])
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $loan->loan_details()->createMany($details);
+            if ($tool->stock < $item['qty']) {
+                throw ValidationException::withMessages([
+                    'items' => "Stok {$tool->name} tidak mencukupi.",
+                ]);
+            }
+
+            $loan->loan_details()->create([
+                'tool_id' => $tool->id,
+                'qty' => $item['qty']
+            ]);
+
+            $tool->decrement('stock', $item['qty']);
+        }
+
+        
 
         });
 
-        $this->user_loan = Loan::where('user_id', $this->user_id)->whereIn('status', ['pending', 'approved'])->first();
+        $this->user_loan = Loan::where('user_id', $this->user_id)->whereIn('status', ['pending', 'approved', 'borrowed', 'return_request'])->first();
 
 
         $this->resetAll();
 
         $this->dispatch('close');
+    }
+
+    public function return($id)
+    {
+        $this->user_loan->update(['status' => 'return_request']);
     }
 
     public function resetAll()
@@ -153,8 +168,8 @@ new class extends Component
                 ->orwhere('stock', 'like', '%'.$this->search.'%');
             })->latest()->get()
         ])
-        ->layout('layouts.app')
-        ->title('Cashier');
+        ->layout('layouts.user')
+        ->title('Loan');
     }
 };
 ?>
@@ -176,7 +191,33 @@ x-on:print.window="window.print()"
 
             <div class="grid md:grid-cols-6 grid-cols-2 gap-4  px-3 my-2 h-auto  ">
                 @if ($this->user_loan)
-                     <x-alert warning title="You Can't Borrowed Tools" class="col-span-full" />
+                <div class="p-3 rounded-lg dark:text-gray-400 dark:bg-gray-800 my-4 mx-3 col-span-full">
+    
+
+                    <div class="flex justify-between items-center px-2">
+                        <h1 class="text-2xl font-semibold">Status: {{ $user_loan->status}}</h1>
+                    <p class="text-sm my-2">Created At: {{ $user_loan->created_at}}</p>
+                    <p class="text-sm my-2">Loan Date: {{ $user_loan->loan_date}}</p>
+                    <p class="text-sm my-2">Due Date: {{ $user_loan->due_date}}</p>
+
+
+
+                    <div class="flex">
+                        <p class="text-sm">Tools:</p>
+                        @foreach ($user_loan->loan_details as $detail)
+                            <p class="text-sm mx-2">{{$detail->tool->name}} x {{$detail->qty}}</p>
+                        @endforeach
+                    </div>
+                       @if ($user_loan->status == 'borrowed')
+                            <x-button label="Return" class=" mx-1" x-on:confirm="{
+                            title: 'Yakin Mengembalikan data ini?',
+                            method: 'return',
+                            params: {{$user_loan->id}}
+                        }"/>
+                       @endif
+                    </div>
+                </div>
+                     <x-alert warning title="You Can't Borrowed Tools, Return Your Tools First" class="col-span-full" />
                 @endif
                 @forelse ($tools as $tool)
                     <div class="flex flex-col shadow dark:bg-gray-800 rounded-md bg-stone-200">

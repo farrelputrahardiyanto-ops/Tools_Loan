@@ -18,12 +18,12 @@ class Loan extends Model
 
     public function user()
     {
-        $this->belongsTo(User::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function approvedLoans()
+    public function approvedLoan()
     {
-        $this->belongsTo(User::class);
+        return $this->belongsTo(User::class);
     }
 
     public function loan_details()

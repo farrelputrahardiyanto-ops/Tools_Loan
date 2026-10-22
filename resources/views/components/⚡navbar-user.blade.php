@@ -35,7 +35,7 @@ new class extends Component
             <div class="md:block" :class="{ 'hidden': !open}">
                 <div class="flex flex-col md:flex-row md:space-x-3">
                     <a href="{{route('loan')}}">Loans</a>
-                    <a href="">History</a>
+                    <a href="{{route('user.history')}}">History</a>
                     <x-button
                         negative
                         x-on:confirm="{

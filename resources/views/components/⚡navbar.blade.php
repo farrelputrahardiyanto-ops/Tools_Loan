@@ -38,7 +38,7 @@ new class extends Component
                     <a href="{{route('tools')}}">Tools</a>
                     <a href="{{route('categories')}}">Categories</a>
                     <a href="{{route('loans')}}">Loans</a>
-                    <a href="">Loan Details</a>
+                    <a href="{{route('loan_details')}}">Loan Details</a>
                     <a href="{{route('max_loan')}}">Max Loan</a>
                     <x-button
                         negative

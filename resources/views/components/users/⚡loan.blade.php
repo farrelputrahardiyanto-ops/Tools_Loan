@@ -191,59 +191,149 @@ x-on:print.window="window.print()"
 
             <div class="grid md:grid-cols-6 grid-cols-2 gap-4  px-3 my-2 h-auto  ">
                 @if ($this->user_loan)
-                <div class="p-3 rounded-lg dark:text-gray-400 dark:bg-gray-800 my-4 mx-3 col-span-full">
-    
+        <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
 
-                    <div class="flex justify-between items-center px-2">
-                        <h1 class="text-2xl font-semibold">Status: {{ $user_loan->status}}</h1>
-                    <p class="text-sm my-2">Created At: {{ $user_loan->created_at}}</p>
-                    <p class="text-sm my-2">Loan Date: {{ $user_loan->loan_date}}</p>
-                    <p class="text-sm my-2">Due Date: {{ $user_loan->due_date}}</p>
+            <div class="flex flex-col gap-4">
 
+                {{-- Loan Header --}}
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">
+                            Loan Status
+                        </h1>
 
-
-                    <div class="flex">
-                        <p class="text-sm">Tools:</p>
-                        @foreach ($user_loan->loan_details as $detail)
-                            <p class="text-sm mx-2">{{$detail->tool->name}} x {{$detail->qty}}</p>
-                        @endforeach
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold
+                            {{ $user_loan->status == 'borrowed'
+                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
+                            {{ ucfirst($user_loan->status) }}
+                        </span>
                     </div>
-                       @if ($user_loan->status == 'borrowed')
-                            <x-button label="Return" class=" mx-1" x-on:confirm="{
-                            title: 'Yakin Mengembalikan data ini?',
-                            method: 'return',
-                            params: {{$user_loan->id}}
-                        }"/>
-                       @endif
+
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Created At: {{ $user_loan->created_at }}
+                    </p>
+                </div>
+
+                {{-- Loan Dates --}}
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Loan Date</p>
+                        <p class="mt-1 font-medium text-gray-800 dark:text-gray-200">
+                            {{ $user_loan->loan_date }}
+                        </p>
+                    </div>
+
+                    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Due Date</p>
+                        <p class="mt-1 font-medium text-gray-800 dark:text-gray-200">
+                            {{ $user_loan->due_date }}
+                        </p>
                     </div>
                 </div>
-                     <x-alert warning title="You Can't Borrowed Tools, Return Your Tools First" class="col-span-full" />
-                @endif
-                @forelse ($tools as $tool)
-                    <div class="flex flex-col shadow dark:bg-gray-800 rounded-md bg-stone-200">
-                        <img src="{{asset('storage/tools/'. $tool->photo)}}" class="w-full h-full object-cover rounded-md" alt="">
-                        <h1 class="text-md text-center mb-1 mt-2 font-semibold dark:text-gray-300">{{$tool->name}}</h1>
-                       
-                            <div class="flex justify-between px-2 mt-3 mb-2 ">
-                                
-                                <p class="text-sm text-gray-400">Stock: {{$tool->stock}}</p>
 
-                                <p class="text-sm text-gray-400">Max Loan: {{$tool->max_loan}}</p>
-                                
-                            </div>
-                            <div class="w-full  p-2 mt-auto ">
-                                <x-button icon="plus" class="w-full" :disabled="$tool->stock == 0 or $this->user_loan"  wire:click="addToCart('{{$tool->id}}')"/>
-                            </div>
+                {{-- Loan Details --}}
+                <div>
+                    <p class="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Borrowed Tools
+                    </p>
+
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($user_loan->loan_details as $detail)
+                            <span class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                {{ $detail->tool->name }}
+                                <span class="font-semibold">x {{ $detail->qty }}</span>
+                            </span>
+                        @endforeach
                     </div>
-                @empty
+                </div>
 
-                <x-alert warning title="Tool Not Found" class="col-span-full" />
+                {{-- Return Button --}}
+                @if ($user_loan->status == 'borrowed')
+                    <div class="flex justify-end border-t border-gray-200 pt-3 dark:border-gray-700">
+                        <x-button
+                            label="Return Tools"
+                            icon="arrow-uturn-left"
+                            class="w-full sm:w-auto"
+                            x-on:confirm="{
+                                title: 'Yakin Mengembalikan data ini?',
+                                method: 'return',
+                                params: {{ $user_loan->id }}
+                            }"
+                        />
+                    </div>
+                @endif
 
-                @endforelse
+            </div>
+        </div>
+
+        <x-alert
+            warning
+            title="You Can't Borrow Tools, Return Your Tools First"
+            class="col-span-full"
+        />
+    @endif
+
+    {{-- Tools List --}}
+    @forelse ($tools as $tool)
+        <div class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+
+            {{-- Tool Image --}}
+            <div class="aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
+                <img
+                    src="{{ asset('storage/tools/' . $tool->photo) }}"
+                    class="h-full w-full object-cover"
+                    alt="{{ $tool->name }}"
+                >
+            </div>
+
+            {{-- Tool Name --}}
+            <div class="flex flex-1 flex-col p-3">
+                <h1 class="line-clamp-2 text-center text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {{ $tool->name }}
+                </h1>
+
+                {{-- Stock Information --}}
+                <div class="mt-4 flex flex-col gap-2">
+                    <div class="flex items-center justify-between gap-2 text-sm">
+                        <span class="text-gray-500 dark:text-gray-400">Stock</span>
+                        <span class="font-medium text-gray-700 dark:text-gray-300">
+                            {{ $tool->stock }}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-2 text-sm">
+                        <span class="text-gray-500 dark:text-gray-400">Max Loan</span>
+                        <span class="font-medium text-gray-700 dark:text-gray-300">
+                            {{ $tool->max_loan }}
+                        </span>
+                    </div>
+                </div>
+
+                {{-- Add to Cart --}}
+                <div class="mt-auto pt-4">
+                    <x-button
+                        icon="plus"
+                        label="Borrow"
+                        class="w-full"
+                        :disabled="$tool->stock == 0 or $this->user_loan"
+                        wire:click="addToCart('{{ $tool->id }}')"
+                    />
+                </div>
+            </div>
+        </div>
+
+    @empty
+        <x-alert
+            warning
+            title="Tool Not Found"
+            class="col-span-full"
+        />
+    @endforelse
 
                 
             </div>
-        </div>
+        </div>  
 
         
 

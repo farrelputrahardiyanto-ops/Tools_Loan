@@ -61,7 +61,7 @@ new class extends Component
                         @forelse ($loans as $loan)
                         <tr>
                             <td class="p-3">{{ $loan->id }}</td>
-                            <td class="p-3">{{ $loan->user->name}}</td>
+                            <td class="p-3">{{ $loan->user?->name }}</td>
                             <td class="p-3">{{ $loan->approvedLoan?->name }}</td>
                             <td class="p-3">{{ $loan->loan_date }}</td>
                             <td class="p-3">{{ $loan->due_date }}</td>
